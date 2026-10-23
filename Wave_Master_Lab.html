@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Master Lab: Properties & Applications of Standing Waves</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; background: #0f172a; color: #f8fafc; }
+        .mono { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-weight: 700; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-900">
+
+    <!-- HEADER -->
+    <header class="border-b border-slate-800 bg-slate-900/90 sticky top-0 z-50 backdrop-blur">
+        <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-400 to-indigo-500 flex items-center justify-center text-slate-900 font-black">
+                    <i class="fa-solid fa-wave-square"></i>
+                </div>
+                <h1 class="text-sm sm:text-base font-black tracking-tight text-white flex items-center gap-2">
+                    <span>WAVE MASTER LAB</span>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 font-bold">PHYSICS PRO</span>
+                </h1>
+            </div>
+
+            <!-- DESKTOP NAV -->
+            <nav class="hidden md:flex space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+                <button onclick="setTab('progressive')" id="nav-progressive" class="tab-btn px-3 py-1.5 rounded-lg bg-cyan-400 text-slate-900 shadow">Progressive</button>
+                <button onclick="setTab('standing')" id="nav-standing" class="tab-btn px-3 py-1.5 rounded-lg text-slate-300 hover:text-white">Standing Waves</button>
+                <button onclick="setTab('games')" id="nav-games" class="tab-btn px-3 py-1.5 rounded-lg text-slate-300 hover:text-white">Games Hub</button>
+                <button onclick="setTab('ref')" id="nav-ref" class="tab-btn px-3 py-1.5 rounded-lg text-slate-300 hover:text-white">Formulas & Share</button>
+            </nav>
+
+            <button onclick="toggleQRModal()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs font-bold text-cyan-400 hover:bg-slate-700">
+                <i class="fa-solid fa-qrcode mr-1"></i> QR Code
+            </button>
+        </div>
+
+        <!-- MOBILE NAV -->
+        <div class="md:hidden flex justify-around bg-slate-950 p-2 border-t border-slate-800 text-[11px] font-bold">
+            <button onclick="setTab('progressive')" class="m-nav text-cyan-400">Progressive</button>
+            <button onclick="setTab('standing')" class="m-nav text-slate-400">Standing</button>
+            <button onclick="setTab('games')" class="m-nav text-slate-400">Games</button>
+            <button onclick="setTab('ref')" class="m-nav text-slate-400">Formulas</button>
+        </div>
+    </header>
+
+    <!-- MAIN BODY -->
+    <main class="max-w-6xl mx-auto px-4 py-5 flex-grow w-full">
+
+        <!-- TAB 1: PROGRESSIVE WAVES LAB -->
+        <section id="tab-sec-progressive" class="space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div>
+                    <h2 class="text-base font-bold text-white">1. Progressive Wave Engine</h2>
+                    <p class="text-xs text-slate-400">Equation: <span class="mono text-cyan-400">y(x,t) = A sin(ωt ± kx)</span></p>
+                </div>
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold">
+                    <button onclick="setProgWaveType('transverse')" id="btn-prog-trans" class="px-3 py-1 rounded-lg bg-cyan-400 text-slate-900">Transverse (Vertical)</button>
+                    <button onclick="setProgWaveType('longitudinal')" id="btn-prog-long" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white">Longitudinal (Horizontal)</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <div class="lg:col-span-2 bg-slate-900 rounded-2xl border border-slate-800 p-3 shadow-xl flex flex-col justify-between">
+                    <div class="relative w-full h-72 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
+                        <canvas id="canvas-prog" class="w-full h-full block"></canvas>
+                        <div id="prog-legend" class="absolute top-2 left-2 bg-slate-900/90 border border-slate-800 px-2.5 py-1.5 rounded-lg text-[10px] space-y-1 backdrop-blur">
+                            <span class="text-cyan-400 font-bold block" id="prog-legend-text">• Transverse: Particles vibrate Vertically</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-center">
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase font-bold block">Wave Speed (v)</span><span id="p-out-v" class="mono text-xs text-cyan-400">0.75 m/s</span></div>
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase font-bold block">Period (T)</span><span id="p-out-t" class="mono text-xs text-indigo-400">0.67 s</span></div>
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase font-bold block">Angular (ω)</span><span id="p-out-w" class="mono text-xs text-amber-400">9.42 rad/s</span></div>
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase font-bold block">Wave No. (k)</span><span id="p-out-k" class="mono text-xs text-emerald-400">12.57 rad/m</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-3.5 shadow-xl">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-800 pb-2">Parameters</h3>
+                    
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-semibold">Amplitude (A)</span>
+                            <span id="val-p-a" class="mono text-cyan-400">0.05 m</span>
+                        </div>
+                        <input type="range" id="sl-p-a" min="0.01" max="0.08" step="0.005" value="0.05" class="w-full accent-cyan-400 bg-slate-950 h-2 rounded cursor-pointer">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-semibold">Frequency (f)</span>
+                            <span id="val-p-f" class="mono text-indigo-400">1.5 Hz</span>
+                        </div>
+                        <input type="range" id="sl-p-f" min="0.2" max="4.0" step="0.1" value="1.5" class="w-full accent-indigo-400 bg-slate-950 h-2 rounded cursor-pointer">
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-semibold">Wavelength (λ)</span>
+                            <span id="val-p-l" class="mono text-amber-400">0.50 m</span>
+                        </div>
+                        <input type="range" id="sl-p-l" min="0.15" max="1.20" step="0.05" value="0.50" class="w-full accent-amber-400 bg-slate-950 h-2 rounded cursor-pointer">
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-800">
+                        <span class="text-xs text-slate-300 font-semibold block mb-1.5">Direction</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="setProgDir(-1)" id="btn-p-right" class="py-1.5 text-xs font-bold rounded-lg bg-cyan-400 text-slate-900">Right (+x)</button>
+                            <button onclick="setProgDir(1)" id="btn-p-left" class="py-1.5 text-xs font-bold rounded-lg bg-slate-950 text-slate-400 border border-slate-800">Left (-x)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: STANDING WAVES & AUDIO LAB -->
+        <section id="tab-sec-standing" class="hidden space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div>
+                    <h2 class="text-base font-bold text-white">2. Standing Waves & Resonance Audio Synthesizer</h2>
+                    <p class="text-xs text-slate-400">Superposition Standing Envelope with Particle Physics</p>
+                </div>
+                <button id="btn-audio" onclick="toggleAudio()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 to-pink-500 text-white text-xs font-bold shadow hover:opacity-90">
+                    <i class="fa-solid fa-volume-high mr-1" id="audio-icon"></i> <span id="audio-txt">Synthesize Sound</span>
+                </button>
+            </div>
+
+            <!-- MODE SELECTOR -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <button onclick="setStandingMode('string')" id="smode-string" class="p-3 rounded-xl border-2 border-cyan-400 bg-cyan-400/10 text-left">
+                    <div class="flex justify-between text-cyan-400 font-bold text-xs uppercase"><span>Stretched String</span><i class="fa-solid fa-guitar"></i></div>
+                    <span class="text-[10px] text-slate-300 block mt-0.5">Fixed Ends (Nodes at x = 0, L)</span>
+                </button>
+                <button onclick="setStandingMode('open')" id="smode-open" class="p-3 rounded-xl border border-slate-800 bg-slate-900 text-left hover:border-slate-700">
+                    <div class="flex justify-between text-slate-200 font-bold text-xs uppercase"><span>Open Air Column</span><i class="fa-solid fa-wind"></i></div>
+                    <span class="text-[10px] text-slate-300 block mt-0.5">Open Ends (Antinodes at x = 0, L)</span>
+                </button>
+                <button onclick="setStandingMode('closed')" id="smode-closed" class="p-3 rounded-xl border border-slate-800 bg-slate-900 text-left hover:border-slate-700">
+                    <div class="flex justify-between text-slate-200 font-bold text-xs uppercase"><span>Closed Air Column</span><i class="fa-solid fa-pipe"></i></div>
+                    <span class="text-[10px] text-slate-300 block mt-0.5">Closed End (Node), Open End (Antinode)</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <div class="lg:col-span-2 bg-slate-900 rounded-2xl border border-slate-800 p-3 shadow-xl flex flex-col justify-between">
+                    <div class="relative w-full h-72 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden">
+                        <canvas id="canvas-stand" class="w-full h-full block"></canvas>
+                        
+                        <div class="absolute bottom-2 left-2 bg-slate-900/90 border border-slate-800 px-2 py-1 rounded-lg text-[10px] flex items-center gap-3 backdrop-blur">
+                            <span class="text-cyan-400 font-bold"><span class="px-1 bg-cyan-400/20 border border-cyan-400/40 rounded">N</span> Node (Fixed)</span>
+                            <span class="text-pink-400 font-bold"><span class="px-1 bg-pink-400/20 border border-pink-400/40 rounded">A</span> Antinode (Max Motion)</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-center">
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase font-bold block">Resonant Freq (f<sub>n</sub>)</span><span id="s-out-fn" class="mono text-xs text-cyan-400">214.4 Hz</span></div>
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase font-bold block">Wavelength (λ)</span><span id="s-out-l" class="mono text-xs text-indigo-400">1.60 m</span></div>
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase font-bold block">Wave Speed (v)</span><span id="s-out-v" class="mono text-xs text-pink-400">343.0 m/s</span></div>
+                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800"><span class="text-[9px] text-slate-400 uppercase font-bold block">Harmonic Mode</span><span id="s-out-mode" class="mono text-xs text-emerald-400">n = 1</span></div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-3.5 shadow-xl">
+                    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider border-b border-slate-800 pb-2">System Controls</h3>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-semibold">Harmonic Mode (n)</span>
+                            <span id="val-s-n" class="mono text-indigo-400">n = 1 (Fundamental)</span>
+                        </div>
+                        <input type="range" id="sl-s-n" min="1" max="8" step="1" value="1" class="w-full accent-indigo-400 bg-slate-950 h-2 rounded cursor-pointer">
+                        <span id="closed-pipe-warn" class="hidden text-[10px] text-amber-400 font-bold block mt-1">⚠️ Closed Pipes support ODD harmonics only (n = 1, 3, 5, 7)!</span>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-semibold">System Length (L)</span>
+                            <span id="val-s-l" class="mono text-cyan-400">0.80 m</span>
+                        </div>
+                        <input type="range" id="sl-s-l" min="0.20" max="2.00" step="0.05" value="0.80" class="w-full accent-cyan-400 bg-slate-950 h-2 rounded cursor-pointer">
+                    </div>
+
+                    <div id="ctrl-string" class="space-y-3 pt-2 border-t border-slate-800">
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300 font-semibold">String Tension (T)</span>
+                                <span id="val-s-t" class="mono text-pink-400">100 N</span>
+                            </div>
+                            <input type="range" id="sl-s-t" min="20" max="400" step="10" value="100" class="w-full accent-pink-400 bg-slate-950 h-2 rounded cursor-pointer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-slate-300 font-semibold">Mass Density (μ)</span>
+                                <span id="val-s-mu" class="mono text-emerald-400">2.0 g/m</span>
+                            </div>
+                            <input type="range" id="sl-s-mu" min="0.5" max="8.0" step="0.5" value="2.0" class="w-full accent-emerald-400 bg-slate-950 h-2 rounded cursor-pointer">
+                        </div>
+                    </div>
+
+                    <div id="ctrl-air" class="hidden pt-2 border-t border-slate-800">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-300 font-semibold">Speed of Sound in Air</span>
+                            <span id="val-s-vair" class="mono text-cyan-400">343 m/s</span>
+                        </div>
+                        <input type="range" id="sl-s-vair" min="300" max="360" step="1" value="343" class="w-full accent-cyan-400 bg-slate-950 h-2 rounded cursor-pointer">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: INTERACTIVE MINI-GAMES HUB -->
+        <section id="tab-sec-games" class="hidden space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
+                <div>
+                    <h2 class="text-base font-bold text-white">3. Wave Master Mini-Games Hub</h2>
+                    <p class="text-xs text-slate-400">Test your physics knowledge and visual recognition skills!</p>
+                </div>
+                <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs font-bold space-x-1">
+                    <button onclick="setGame('rush')" id="btngame-rush" class="px-3 py-1 rounded-lg bg-indigo-500 text-white">1. Target Rush</button>
+                    <button onclick="setGame('quiz')" id="btngame-quiz" class="px-3 py-1 rounded-lg text-slate-400 hover:text-white">2. Quiz Blitz</button>
+                </div>
+            </div>
+
+            <!-- GAME 1: TARGET RUSH -->
+            <div id="game-rush-box" class="bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-3 shadow-xl">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <span id="rush-target-txt" class="text-xs font-black text-cyan-400 uppercase tracking-wider">PRESS START TO BEGIN RUSH!</span>
+                    <div class="flex items-center gap-2 text-xs">
+                        <span class="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">Timer: <strong id="rush-timer" class="mono text-pink-400">30s</strong></span>
+                        <span class="bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">Score: <strong id="rush-score" class="mono text-emerald-400">0</strong></span>
+                        <button onclick="startRushGame()" id="btn-start-rush" class="px-3 py-1 bg-indigo-500 text-white font-bold rounded-lg text-xs shadow hover:opacity-90">Start Game</button>
+                    </div>
+                </div>
+
+                <div class="relative w-full h-64 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden cursor-crosshair">
+                    <canvas id="canvas-game-rush" class="w-full h-full block"></canvas>
+                </div>
+            </div>
+
+            <!-- GAME 2: PHYSICS QUIZ BLITZ -->
+            <div id="game-quiz-box" class="hidden bg-slate-900 rounded-2xl border border-slate-800 p-4 space-y-4 shadow-xl max-w-2xl mx-auto">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+                    <span id="quiz-num" class="text-xs font-bold text-cyan-400 uppercase">Question 1 of 3</span>
+                    <span id="quiz-streak" class="text-xs font-bold text-amber-400">0 🔥 Streak</span>
+                </div>
+
+                <p id="quiz-q" class="text-xs sm:text-sm font-bold text-slate-100">Loading Question...</p>
+
+                <div id="quiz-opts" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs"></div>
+
+                <div id="quiz-exp" class="hidden bg-cyan-500/10 p-3 rounded-xl border border-cyan-500/30 text-[11px] text-slate-200 space-y-1">
+                    <strong class="text-cyan-400 font-bold uppercase text-[9px] block">Solution Steps:</strong>
+                    <p id="quiz-exp-txt">...</p>
+                </div>
+
+                <button id="btn-next-q" onclick="nextQuizQuestion()" class="hidden w-full py-2.5 bg-indigo-500 text-white font-bold rounded-xl text-xs uppercase shadow">
+                    Next Question <i class="fa-solid fa-arrow-right ml-1"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- TAB 4: FORMULA CHEAT SHEET & SHARE MODAL -->
+        <section id="tab-sec-ref" class="hidden space-y-4">
+            <div class="border-b border-slate-800 pb-3">
+                <h2 class="text-base font-bold text-white">4. Interactive Physics Reference Sheet</h2>
+                <p class="text-xs text-slate-400">Core Matriculation & College Physics Wave Formulas</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <div class="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+                    <h3 class="font-bold text-cyan-400 border-b border-slate-800 pb-1">Progressive Wave Dynamics</h3>
+                    <p><strong class="text-slate-300">Displacement:</strong> <span class="mono text-cyan-400">y(x,t) = A sin(ωt ± kx)</span></p>
+                    <p><strong class="text-slate-300">Particle Velocity:</strong> <span class="mono text-emerald-400">v<sub>y</sub> = Aω cos(ωt ± kx)</span></p>
+                    <p><strong class="text-slate-300">Wave Speed & Wave No:</strong> <span class="mono text-amber-400">v = fλ = ω/k | k = 2π/λ</span></p>
+                </div>
+
+                <div class="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+                    <h3 class="font-bold text-indigo-400 border-b border-slate-800 pb-1">Stretched Strings & Open Pipes</h3>
+                    <p><strong class="text-slate-300">Transverse String Speed:</strong> <span class="mono text-pink-400">v = √(T / μ)</span></p>
+                    <p><strong class="text-slate-300">Resonant Frequency:</strong> <span class="mono text-indigo-400">f<sub>n</sub> = n v / (2L)</span></p>
+                    <p><strong class="text-slate-300">Harmonic Modes:</strong> <span class="mono text-cyan-400">n = 1, 2, 3, 4...</span></p>
+                </div>
+
+                <div class="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 space-y-2">
+                    <h3 class="font-bold text-amber-400 border-b border-slate-800 pb-1">Closed Pipe Harmonics</h3>
+                    <p><strong class="text-slate-300">Resonant Frequency:</strong> <span class="mono text-amber-400">f<sub>n</sub> = n v / (4L)</span></p>
+                    <p><strong class="text-slate-300">Odd Harmonics Only:</strong> <span class="mono text-pink-400">n = 1, 3, 5, 7...</span></p>
+                    <p><strong class="text-slate-300">Node-Antinode Gap:</strong> <span class="mono text-emerald-400">Δx(N to A) = λ / 4</span></p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-slate-800 bg-slate-900 py-3 text-center text-[11px] text-slate-400">
+        Wave Master Lab &copy; Matriculation Physics Interactive Engine
+    </footer>
+
+    <!-- QR MODAL -->
+    <div id="qr-modal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 max-w-xs w-full space-y-3 text-center relative shadow-2xl">
+            <button onclick="toggleQRModal()" class="absolute top-2 right-2 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="text-sm font-bold text-white">Share Mobile QR Code</h3>
+            <p class="text-[11px] text-slate-400">Enter your live website URL below:</p>
+            <input type="url" id="qr-url" placeholder="https://your-page.htmlsave.net" class="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-xs text-white">
+            <button onclick="genQR()" class="w-full py-1.5 rounded-lg bg-cyan-400 text-slate-900 font-bold text-xs uppercase">Generate QR</button>
+            <div class="flex justify-center pt-1">
+                <img id="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://github.com" alt="QR" class="w-36 h-36 rounded-lg bg-white p-1">
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        // STATE MANAGEMENT
+        const state = {
+            tab: 'progressive',
+            prog: { type: 'transverse', A: 0.05, f: 1.5, lambda: 0.50, dir: -1 },
+            stand: { mode: 'string', L: 0.80, n: 1, T: 100, mu: 0.002, vAir: 343 },
+            audioCtx: null, osc: null, gain: null, isAudio: false,
+            rush: { active: false, target: 'N', timer: 30, score: 0, interval: null },
+            quiz: { index: 0, streak: 0 }
+        };
+
+        // SETUP HIGH-DPI CANVAS
+        function initDPI(canvas) {
+            const dpr = window.devicePixelRatio || 1;
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width * dpr; canvas.height = rect.height * dpr;
+            const ctx = canvas.getContext('2d'); ctx.resetTransform(); ctx.scale(dpr, dpr);
+            return { ctx, w: rect.width, h: rect.height };
+        }
+
+        // TAB SWITCHING
+        function setTab(tId) {
+            state.tab = tId;
+            ['progressive', 'standing', 'games', 'ref'].forEach(t => {
+                document.getElementById(`tab-sec-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`nav-${t}`);
+                if (btn) { btn.classList.remove('bg-cyan-400', 'text-slate-900'); btn.classList.add('text-slate-300'); }
+            });
+            document.getElementById(`tab-sec-${tId}`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tId}`);
+            if (activeNav) { activeNav.classList.add('bg-cyan-400', 'text-slate-900'); activeNav.classList.remove('text-slate-300'); }
+            if (tId === 'games') loadQuizQuestion();
+        }
+
+        function toggleQRModal() { document.getElementById('qr-modal').classList.toggle('hidden'); }
+        function genQR() {
+            const url = document.getElementById('qr-url').value.trim() || 'https://github.com';
+            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(url)}`;
+        }
+
+        // 1. PROGRESSIVE WAVE LOGIC
+        const canvasProg = document.getElementById('canvas-prog');
+        let timeProg = 0;
+
+        function setProgWaveType(type) {
+            state.prog.type = type;
+            document.getElementById('btn-prog-trans').className = type === 'transverse' ? "px-3 py-1 rounded-lg bg-cyan-400 text-slate-900" : "px-3 py-1 rounded-lg text-slate-400 hover:text-white";
+            document.getElementById('btn-prog-long').className = type === 'longitudinal' ? "px-3 py-1 rounded-lg bg-cyan-400 text-slate-900" : "px-3 py-1 rounded-lg text-slate-400 hover:text-white";
+            document.getElementById('prog-legend-text').textContent = type === 'transverse' ? "• Transverse: Particles vibrate Vertically" : "• Longitudinal: Air Particles vibrate Horizontally";
+        }
+
+        function updateProgParams() {
+            state.prog.A = parseFloat(document.getElementById('sl-p-a').value);
+            state.prog.f = parseFloat(document.getElementById('sl-p-f').value);
+            state.prog.lambda = parseFloat(document.getElementById('sl-p-l').value);
+
+            document.getElementById('val-p-a').textContent = `${state.prog.A.toFixed(3)} m`;
+            document.getElementById('val-p-f').textContent = `${state.prog.f.toFixed(1)} Hz`;
+            document.getElementById('val-p-l').textContent = `${state.prog.lambda.toFixed(2)} m`;
+
+            const v = state.prog.f * state.prog.lambda;
+            document.getElementById('p-out-v').textContent = `${v.toFixed(2)} m/s`;
+            document.getElementById('p-out-t').textContent = `${(1 / state.prog.f).toFixed(2)} s`;
+            document.getElementById('p-out-w').textContent = `${(2 * Math.PI * state.prog.f).toFixed(2)} rad/s`;
+            document.getElementById('p-out-k').textContent = `${(2 * Math.PI / state.prog.lambda).toFixed(2)} rad/m`;
+        }
+
+        function setProgDir(d) {
+            state.prog.dir = d;
+            document.getElementById('btn-p-right').className = d === -1 ? "py-1.5 text-xs font-bold rounded-lg bg-cyan-400 text-slate-900" : "py-1.5 text-xs font-bold rounded-lg bg-slate-950 text-slate-400 border border-slate-800";
+            document.getElementById('btn-p-left').className = d === 1 ? "py-1.5 text-xs font-bold rounded-lg bg-cyan-400 text-slate-900" : "py-1.5 text-xs font-bold rounded-lg bg-slate-950 text-slate-400 border border-slate-800";
+        }
+
+        function drawProgWave() {
+            if (state.tab !== 'progressive') return;
+            const { ctx, w, h } = initDPI(canvasProg);
+            ctx.clearRect(0, 0, w, h);
+
+            const centerY = h / 2;
+            const pxM = w / 2.0;
+            const omega = 2 * Math.PI * state.prog.f;
+            const k = 2 * Math.PI / state.prog.lambda;
+
+            if (state.prog.type === 'transverse') {
+                // TRANSVERSE WAVE: VERTICAL PARTICLE MOTION
+                ctx.strokeStyle = '#38bdf8'; ctx.lineWidth = 3; ctx.beginPath();
+                for (let xPx = 0; xPx <= w; xPx += 2) {
+                    const xM = xPx / pxM;
+                    const yM = state.prog.A * Math.sin(omega * timeProg + state.prog.dir * k * xM);
+                    const yPx = centerY - yM * (h * 3.5);
+                    if (xPx === 0) ctx.moveTo(xPx, yPx); else ctx.lineTo(xPx, yPx);
+                }
+                ctx.stroke();
+
+                // VERTICALLY OSCILLATING PARTICLES
+                for (let xM = 0.2; xM <= 1.8; xM += 0.3) {
+                    const xPx = xM * pxM;
+                    const yM = state.prog.A * Math.sin(omega * timeProg + state.prog.dir * k * xM);
+                    const yPx = centerY - yM * (h * 3.5);
+                    ctx.fillStyle = '#f472b6'; ctx.beginPath(); ctx.arc(xPx, yPx, 5, 0, 2 * Math.PI); ctx.fill();
+                }
+            } else {
+                // LONGITUDINAL WAVE: HORIZONTAL PARTICLE MOTION
+                const numGrid = 30;
+                for (let i = 0; i < numGrid; i++) {
+                    const eqXM = (i / numGrid) * 2.0;
+                    const dispXM = state.prog.A * Math.sin(omega * timeProg + state.prog.dir * k * eqXM);
+                    const actualXPx = (eqXM + dispXM) * pxM;
+
+                    ctx.fillStyle = '#34d399';
+                    for (let row = -3; row <= 3; row++) {
+                        ctx.beginPath(); ctx.arc(actualXPx, centerY + row * 12, 4, 0, 2 * Math.PI); ctx.fill();
+                    }
+                }
+            }
+        }
+
+        // 2. STANDING WAVE LOGIC
+        const canvasStand = document.getElementById('canvas-stand');
+        let timeStand = 0;
+
+        function setStandingMode(m) {
+            state.stand.mode = m;
+            ['string', 'open', 'closed'].forEach(mode => {
+                const b = document.getElementById(`smode-${mode}`);
+                b.className = mode === m ? "p-3 rounded-xl border-2 border-cyan-400 bg-cyan-400/10 text-left" : "p-3 rounded-xl border border-slate-800 bg-slate-900 text-left hover:border-slate-700";
+            });
+
+            if (m === 'string') {
+                document.getElementById('ctrl-string').classList.remove('hidden');
+                document.getElementById('ctrl-air').classList.add('hidden');
+            } else {
+                document.getElementById('ctrl-string').classList.add('hidden');
+                document.getElementById('ctrl-air').classList.remove('hidden');
+            }
+            updateStandParams();
+        }
+
+        function updateStandParams() {
+            state.stand.L = parseFloat(document.getElementById('sl-s-l').value);
+            let nVal = parseInt(document.getElementById('sl-s-n').value);
+            
+            // ENFORCE ODD HARMONICS FOR CLOSED PIPE
+            if (state.stand.mode === 'closed') {
+                if (nVal % 2 === 0) nVal += (nVal === 8 ? -1 : 1);
+                document.getElementById('closed-pipe-warn').classList.remove('hidden');
+            } else {
+                document.getElementById('closed-pipe-warn').classList.add('hidden');
+            }
+            state.stand.n = nVal;
+
+            state.stand.T = parseFloat(document.getElementById('sl-s-t').value);
+            state.stand.mu = parseFloat(document.getElementById('sl-s-mu').value) / 1000.0;
+            state.stand.vAir = parseFloat(document.getElementById('sl-s-vair').value);
+
+            document.getElementById('val-s-l').textContent = `${state.stand.L.toFixed(2)} m`;
+            document.getElementById('val-s-n').textContent = `n = ${state.stand.n}`;
+            document.getElementById('val-s-t').textContent = `${state.stand.T.toFixed(0)} N`;
+            document.getElementById('val-s-mu').textContent = `${(state.stand.mu * 1000).toFixed(1)} g/m`;
+
+            let v = 0, fn = 0, lambda = 0;
+            if (state.stand.mode === 'string') {
+                v = Math.sqrt(state.stand.T / state.stand.mu);
+                lambda = (2 * state.stand.L) / state.stand.n;
+                fn = (state.stand.n * v) / (2 * state.stand.L);
+            } else if (state.stand.mode === 'open') {
+                v = state.stand.vAir;
+                lambda = (2 * state.stand.L) / state.stand.n;
+                fn = (state.stand.n * v) / (2 * state.stand.L);
+            } else {
+                v = state.stand.vAir;
+                lambda = (4 * state.stand.L) / state.stand.n;
+                fn = (state.stand.n * v) / (4 * state.stand.L);
+            }
+
+            document.getElementById('s-out-fn').textContent = `${fn.toFixed(1)} Hz`;
+            document.getElementById('s-out-l').textContent = `${lambda.toFixed(2)} m`;
+            document.getElementById('s-out-v').textContent = `${v.toFixed(1)} m/s`;
+            document.getElementById('s-out-mode').textContent = `n = ${state.stand.n}`;
+
+            if (state.isAudio && state.osc) {
+                state.osc.frequency.setValueAtTime(fn, state.audioCtx.currentTime);
+            }
+        }
+
+        function toggleAudio() {
+            if (!state.audioCtx) state.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (state.isAudio) {
+                if (state.osc) state.osc.stop();
+                state.isAudio = false;
+                document.getElementById('audio-txt').textContent = "Synthesize Sound";
+            } else {
+                state.osc = state.audioCtx.createOscillator();
+                state.gain = state.audioCtx.createGain();
+                const fn = parseFloat(document.getElementById('s-out-fn').textContent);
+                state.osc.type = 'sine'; state.osc.frequency.setValueAtTime(fn, state.audioCtx.currentTime);
+                state.gain.gain.setValueAtTime(0.15, state.audioCtx.currentTime);
+                state.osc.connect(state.gain); state.gain.connect(state.audioCtx.destination);
+                state.osc.start(); state.isAudio = true;
+                document.getElementById('audio-txt').textContent = "Stop Sound";
+            }
+        }
+
+        function drawStandWave() {
+            if (state.tab !== 'standing') return;
+            const { ctx, w, h } = initDPI(canvasStand);
+            ctx.clearRect(0, 0, w, h);
+
+            const centerY = h / 2;
+            const padX = 40; const drawW = w - 2 * padX;
+            const n = state.stand.n;
+            const timeFactor = Math.cos(2 * Math.PI * 2 * timeStand);
+
+            // DRAW PIPE BOUNDARIES
+            if (state.stand.mode !== 'string') {
+                ctx.strokeStyle = '#475569'; ctx.lineWidth = 2.5;
+                ctx.beginPath(); ctx.moveTo(padX, centerY - 40); ctx.lineTo(padX + drawW, centerY - 40); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(padX, centerY + 40); ctx.lineTo(padX + drawW, centerY + 40); ctx.stroke();
+                if (state.stand.mode === 'closed') {
+                    ctx.beginPath(); ctx.moveTo(padX, centerY - 40); ctx.lineTo(padX, centerY + 40); ctx.stroke();
+                }
+            }
+
+            if (state.stand.mode === 'string') {
+                // STRING TRANSVERSE WAVE
+                ctx.strokeStyle = '#c084fc'; ctx.lineWidth = 3.5; ctx.beginPath();
+                for (let xPx = 0; xPx <= drawW; xPx += 2) {
+                    const normX = xPx / drawW;
+                    const env = Math.sin(n * Math.PI * normX);
+                    const yPx = centerY - env * timeFactor * 45;
+                    if (xPx === 0) ctx.moveTo(padX + xPx, yPx); else ctx.lineTo(padX + xPx, yPx);
+                }
+                ctx.stroke();
+            } else {
+                // AIR COLUMN LONGITUDINAL PARTICLES
+                const numParticles = 35;
+                for (let i = 0; i <= numParticles; i++) {
+                    const normX = i / numParticles;
+                    let modeAmp = 0;
+                    if (state.stand.mode === 'open') modeAmp = Math.cos(n * Math.PI * normX);
+                    else modeAmp = Math.sin((n * Math.PI * normX) / 2);
+
+                    const horizDisp = modeAmp * timeFactor * 18;
+                    const pXPx = padX + (normX * drawW) + horizDisp;
+
+                    ctx.fillStyle = '#34d399';
+                    for (let r = -2; r <= 2; r++) {
+                        ctx.beginPath(); ctx.arc(pXPx, centerY + r * 12, 3.5, 0, 2 * Math.PI); ctx.fill();
+                    }
+                }
+            }
+
+            // NODES & ANTINODES LABELS
+            const nodes = []; const antinodes = [];
+            if (state.stand.mode === 'string') {
+                for (let i = 0; i <= n; i++) nodes.push(i / n);
+                for (let i = 0; i < n; i++) antinodes.push((i + 0.5) / n);
+            } else if (state.stand.mode === 'open') {
+                for (let i = 0; i < n; i++) nodes.push((i + 0.5) / n);
+                for (let i = 0; i <= n; i++) antinodes.push(i / n);
+            } else {
+                for (let i = 0; i <= n; i += 2) nodes.push(i / n);
+                for (let i = 1; i <= n; i += 2) antinodes.push(i / n);
+            }
+
+            nodes.forEach(p => {
+                const x = padX + p * drawW;
+                ctx.fillStyle = '#38bdf8'; ctx.beginPath(); ctx.arc(x, centerY, 5, 0, 2 * Math.PI); ctx.fill();
+                ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 11px system-ui'; ctx.textAlign = 'center'; ctx.fillText('N', x, centerY - 10);
+            });
+
+            antinodes.forEach(p => {
+                const x = padX + p * drawW;
+                ctx.fillStyle = '#f472b6'; ctx.beginPath(); ctx.arc(x, centerY, 5, 0, 2 * Math.PI); ctx.fill();
+                ctx.fillStyle = '#f8fafc'; ctx.font = 'bold 11px system-ui'; ctx.textAlign = 'center'; ctx.fillText('A', x, centerY + 18);
+            });
+        }
+
+        // 3. MINI-GAMES HUB
+        function setGame(g) {
+            ['rush', 'quiz'].forEach(id => {
+                document.getElementById(`game-${id}-box`).classList.add('hidden');
+                document.getElementById(`btngame-${id}`).className = "px-3 py-1 rounded-lg text-slate-400 hover:text-white";
+            });
+            document.getElementById(`game-${g}-box`).classList.remove('hidden');
+            document.getElementById(`btngame-${g}`).className = "px-3 py-1 rounded-lg bg-indigo-500 text-white";
+            if (g === 'quiz') loadQuizQuestion();
+        }
+
+        const canvasRush = document.getElementById('canvas-game-rush');
+        function startRushGame() {
+            state.rush.active = true; state.rush.score = 0; state.rush.timer = 30;
+            document.getElementById('rush-score').textContent = '0';
+            if (state.rush.interval) clearInterval(state.rush.interval);
+            state.rush.interval = setInterval(() => {
+                state.rush.timer--;
+                document.getElementById('rush-timer').textContent = `${state.rush.timer}s`;
+                if (state.rush.timer <= 0) {
+                    clearInterval(state.rush.interval);
+                    state.rush.active = false;
+                    alert(`Time Up! Your Final Score: ${state.rush.score}`);
+                }
+            }, 1000);
+            nextRushTarget();
+        }
+
+        function nextRushTarget() {
+            state.rush.target = Math.random() > 0.5 ? 'N' : 'A';
+            document.getElementById('rush-target-txt').textContent = `CLICK ALL ${state.rush.target === 'N' ? 'NODES (N)' : 'ANTINODES (A)'}!`;
+        }
+
+        canvasRush.addEventListener('click', () => {
+            if (!state.rush.active) return;
+            state.rush.score += 10;
+            document.getElementById('rush-score').textContent = state.rush.score;
+            nextRushTarget();
+        });
+
+        function drawRushCanvas() {
+            if (state.tab !== 'games') return;
+            const { ctx, w, h } = initDPI(canvasRush);
+            ctx.clearRect(0, 0, w, h);
+
+            ctx.strokeStyle = '#818cf8'; ctx.lineWidth = 3; ctx.beginPath();
+            for (let x = 0; x <= w; x += 2) {
+                const y = h / 2 - Math.sin(3 * Math.PI * (x / w)) * Math.cos(timeStand * 4) * 40;
+                if (x === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
+
+        const quizBank = [
+            {
+                q: "A stretched string has tension T = 100 N and mass per unit length μ = 0.002 kg/m. What is fundamental frequency f1 for length L = 0.80 m?",
+                opts: ["139.8 Hz", "223.6 Hz", "70.0 Hz", "279.5 Hz"],
+                ans: 0, exp: "f1 = (1/2L)√(T/μ) = (1/1.60)√(100/0.002) = 139.75 Hz."
+            },
+            {
+                q: "Which harmonics exist in a Closed Air Column (one end closed, one end open)?",
+                opts: ["Odd Harmonics Only (n=1,3,5...)", "Even Harmonics Only", "All Harmonics (n=1,2,3...)", "Fundamental Only"],
+                ans: 0, exp: "Closed pipes have a Node at the closed end and Antinode at open end, supporting ODD harmonics only."
+            },
+            {
+                q: "In a longitudinal wave (sound in air column), air molecules oscillate:",
+                opts: ["Horizontally (along wave direction)", "Vertically (perpendicular)", "In circular paths", "They remain completely still everywhere"],
+                ans: 0, exp: "Longitudinal wave particles oscillate parallel/horizontally along the direction of wave propagation."
+            }
+        ];
+
+        function loadQuizQuestion() {
+            const q = quizBank[state.quiz.index];
+            document.getElementById('quiz-num').textContent = `Question ${state.quiz.index + 1} of ${quizBank.length}`;
+            document.getElementById('quiz-q').textContent = q.q;
+            const opts = document.getElementById('quiz-opts'); opts.innerHTML = '';
+            q.opts.forEach((o, i) => {
+                const b = document.createElement('button');
+                b.className = "p-2.5 rounded-xl border border-slate-800 bg-slate-950 text-left font-semibold text-slate-200 hover:border-cyan-400";
+                b.textContent = `${String.fromCharCode(65 + i)}. ${o}`;
+                b.onclick = () => selectQuiz(i);
+                opts.appendChild(b);
+            });
+        }
+
+        function selectQuiz(i) {
+            const q = quizBank[state.quiz.index];
+            if (i === q.ans) { state.quiz.streak++; alert("Correct Answer!"); }
+            else { state.quiz.streak = 0; alert("Incorrect!"); }
+            document.getElementById('quiz-streak').textContent = `${state.quiz.streak} 🔥 Streak`;
+            document.getElementById('quiz-exp-txt').textContent = q.exp;
+            document.getElementById('quiz-exp').classList.remove('hidden');
+            document.getElementById('btn-next-q').classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            state.quiz.index = (state.quiz.index + 1) % quizBank.length;
+            document.getElementById('quiz-exp').classList.add('hidden');
+            document.getElementById('btn-next-q').classList.add('hidden');
+            loadQuizQuestion();
+        }
+
+        // INITIALIZATION
+        window.onload = function() {
+            ['sl-p-a', 'sl-p-f', 'sl-p-l'].forEach(id => document.getElementById(id).addEventListener('input', updateProgParams));
+            ['sl-s-l', 'sl-s-n', 'sl-s-t', 'sl-s-mu', 'sl-s-vair'].forEach(id => document.getElementById(id).addEventListener('input', updateStandParams));
+
+            updateProgParams(); updateStandParams();
+
+            function loop() {
+                timeProg += 0.015; timeStand += 0.015;
+                drawProgWave(); drawStandWave(); drawRushCanvas();
+                requestAnimationFrame(loop);
+            }
+            requestAnimationFrame(loop);
+        };
+    </script>
+</body>
+</html>
